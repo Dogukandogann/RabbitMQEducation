@@ -1,20 +1,12 @@
 ﻿//Bağlantı oluşturma
+using Publisher;
 using RabbitMQ.Client;
 using System.Text;
 
-ConnectionFactory factory = new();
-factory.Uri = new("amqps://aoldppsp:f6YNTlBi7kuoVqHotf1lloh6H9wgd-sx@toad.rmq.cloudamqp.com/aoldppsp");
+//Basic Publish 
+BasicPublish.Publish();
 
-//Bağlantıyı aktifleştirme ve kanal açma
-using IConnection connection = factory.CreateConnection();
-using IModel channel = connection.CreateModel();
-
-//Kuyruk oluşturma
-channel.QueueDeclare(queue: "example-queue", exclusive: false);
-
-//Mesaj gönderme
-//RabbitMq kuyruğa atacağı mesajları byte olarak kabul etmektedir.
-byte[] message = Encoding.UTF8.GetBytes("Hello World!");
-channel.BasicPublish(exchange: "", routingKey: "example-queue", body: message);
+//Message Durability Publish -- basic publisten farklı olarak rabbitmq tarafında bir problemle(Server çökmeleri v.s) karşılaşsak bile kuyruk ve mesaj kalıcı olacaktır.%100 garantili bir koruma  sağlamaz.Bunun için outbox , inbox gibi mimariler kullanılabilir.
+MessageDurabilityPublish.Publish();
 
 Console.Read();
