@@ -9,7 +9,7 @@ namespace Publisher
 {
     public static class FanoutPublish
     {
-        public static async void Publis()
+        public static async void Publish()
         {
             //Bağlantı oluşturma
             ConnectionFactory factory = new();

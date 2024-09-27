@@ -10,7 +10,7 @@ namespace Consumer
 {
     public static class DirectExchangeConsume
     {
-        public static void Publisher()
+        public static void Consume()
         {
             //Bağlantı oluşturma
             ConnectionFactory factory = new();

@@ -8,34 +8,34 @@ using System.Threading.Tasks;
 
 namespace Consumer
 {
-    public static class FanoutConsume
+    public static class HeaderExchangeConsume
     {
-        public static void Consume()
+        public static async void Consume()
         {
-            //Bağlantı oluşturma
             ConnectionFactory factory = new();
             factory.Uri = new("amqps://aoldppsp:f6YNTlBi7kuoVqHotf1lloh6H9wgd-sx@toad.rmq.cloudamqp.com/aoldppsp");
 
-            //Bağlantıyı aktifleştirme ve kanal açma
             using IConnection connection = factory.CreateConnection();
             using IModel channel = connection.CreateModel();
 
-            channel.ExchangeDeclare(exchange: "fanout-exchange-example", type: ExchangeType.Fanout);
+            channel.ExchangeDeclare(exchange: "header-exchange-example", type: ExchangeType.Headers);
 
-            Console.WriteLine("Kuyruk Adı Giriniz");
-            string _queueName = Console.ReadLine();
-            channel.QueueDeclare(queue:_queueName,exclusive:false);
+            Console.WriteLine("Header value ?");
+            string value = Console.ReadLine();
 
-            channel.QueueBind(queue:_queueName,exchange: "fanout-exchange-example",routingKey:string.Empty);
+            string queueName = channel.QueueDeclare().QueueName;
+
+            channel.QueueBind(queue:queueName,exchange: "header-exchange-example",routingKey:string.Empty,new Dictionary<string, object> { ["no"]= value });
 
             EventingBasicConsumer consumer = new(channel);
-            channel.BasicConsume(queue: _queueName, true, consumer);
+            channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
 
             consumer.Received += (sender, e) =>
             {
                 string message = Encoding.UTF8.GetString(e.Body.Span);
                 Console.WriteLine(message);
-            }; 
+            };
         }
-    }
+
+     }
 }
