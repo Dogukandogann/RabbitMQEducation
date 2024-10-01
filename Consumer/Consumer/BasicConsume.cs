@@ -12,19 +12,21 @@ namespace Consumer
     {
         public static void BasicConsumer() 
         {
-            //Bağlantı oluşturma
+            //RabbitMQ sunucusuna bağlanmak için ConnectionFactory sınıfını kullanıyoruz.
             ConnectionFactory factory = new();
             factory.Uri = new("amqps://aoldppsp:f6YNTlBi7kuoVqHotf1lloh6H9wgd-sx@toad.rmq.cloudamqp.com/aoldppsp");
 
-            //Bağlantıyı aktifleştirme ve kanal açma
+            //Bağlantıyı aktifleştiriyoruz.
             using IConnection connection = factory.CreateConnection();
+            //Kanal oluşturuyoruz.
             using IModel channel = connection.CreateModel();
 
-            //Kuyruk oluşturma
-            channel.QueueDeclare(queue: "example-queue", exclusive: false,durable:true);
+            //Kuyruk oluşturuyoruz , bu kısımn publisher ile aynı olmalıdır.
+            channel.QueueDeclare(queue: "example-queue", exclusive: false, autoDelete: false,durable:true);
 
-            //Mesaj okuma
+            //Consumer oluşturuyoruz.
             EventingBasicConsumer consumer = new(channel);
+            //Kuyruğu dinlemeye başlıyoruz. queue: kuyruk adı, autoAck: mesajın işlendikten sonra kuyruktan silinip silinmeyeceğini belirler, consumer: mesajın işleneceği consumer'ı belirler
             channel.BasicConsume(queue: "example-queue", true, consumer);
             consumer.Received += (sender, e) =>
             {
